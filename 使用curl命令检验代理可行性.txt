@@ -1,0 +1,4 @@
+# 使用系统代理服务器
+curl -L www.google.com
+#  专门设置代理服务器
+curl -vvv -x socks5://127.0.0.1:7890 https://www.google.com

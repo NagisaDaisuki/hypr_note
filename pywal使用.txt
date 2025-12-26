@@ -1,0 +1,185 @@
+Pywal 和 Hyprland 颜色配置指南
+
+Pywal 工作原理
+
+Pywal 从壁纸中提取颜色，生成一个 16 色的调色板。这些颜色保存在 ~/.cache/wal/ 目录下，例如：
+
+colors：十六进制颜色代码。
+
+colors.sh：Bash 脚本，定义颜色变量。
+
+colors.rasi：Rofi 颜色配置。
+
+colors-hyprland.conf：如果你创建了 Hyprland 模板。
+
+Pywal 通过模板工作，它不会直接修改你的配置文件，而是替换模板文件中的占位符来生成新的配置文件。你需要为 Hyprland 和其他应用创建包含这些占位符的模板。
+
+安装 Pywal
+
+使用你的包管理器安装 Pywal。
+例如 (Arch Linux):
+
+sudo pacman -S pywal
+
+配置 Hyprland 使用 Pywal 颜色
+
+要在 Hyprland 中使用 Pywal 颜色，你需要创建一个 Hyprland 颜色模板并引用它。
+
+3.1 创建 Hyprland 颜色模板
+
+Hyprland 配置结构：Hyprland 配置通常在 ~/.config/hypr/hyprland.conf。建议创建一个单独的文件来存储 Pywal 颜色变量。
+
+创建模板文件：在 ~/.config/wal/templates/ 目录下（若不存在则创建），创建一个名为 colors-hyprland.conf 的文件。
+
+colors-hyprland.conf 模板示例：
+
+~/.config/wal/templates/colors-hyprland.conf
+$background = rgb({background.strip})
+$foreground = rgb({foreground.strip})
+$color0 = rgb({color0.strip})
+$color1 = rgb({color1.strip})
+$color2 = rgb({color2.strip})
+$color3 = rgb({color3.strip})
+$color4 = rgb({color4.strip})
+$color5 = rgb({color5.strip})
+$color6 = rgb({color6.strip})
+$color7 = rgb({color7.strip})
+$color8 = rgb({color8.strip})
+$color9 = rgb({color9.strip})
+$color10 = rgb({color10.strip})
+$color11 = rgb({color11.strip})
+$color12 = rgb({color12.strip})
+$color13 = rgb({color13.strip})
+$color14 = rgb({color14.strip})
+$color15 = rgb({color15.strip})
+
+其他 Pywal 变量
+$wallpaper = {wallpaper}
+
+注意：{colorN.strip} 用于移除 Pywal 颜色值可能包含的空白字符。
+
+3.2 在 Hyprland 配置中引用 Pywal 颜色
+
+引用生成的颜色文件：打开 ~/.config/hypr/hyprland.conf，在文件开头或定义变量处添加：
+
+~/.config/hypr/hyprland.conf
+source = ~/.cache/wal/colors-hyprland.conf
+
+这确保 Hyprland 每次启动都加载 Pywal 颜色。
+
+使用颜色变量：现在可以在 hyprland.conf 中使用 $color0 到 $color15、$background 和 $foreground 等变量。
+
+例如，设置窗口边框颜色：
+
+general {
+border_size = 2
+col.active_border = $color1 $color4 45deg
+col.inactive_border = $background
+}
+
+decoration {
+col.shadow = $color0
+}
+
+运行 Pywal 并应用颜色
+
+生成颜色方案：运行 Pywal 命令，指定壁纸文件：
+
+wal -i /path/to/your/wallpaper.jpg
+
+Pywal 会生成颜色方案并保存到 ~/.cache/wal/。
+
+重新加载 Hyprland 配置：
+在 Hyprland 中按 Win + R (或你的重载快捷键)，然后输入：
+
+hyprctl reload
+
+或者重启 Hyprland 会话。
+
+自动化 Pywal 颜色更新 (可选)
+
+创建一个脚本在壁纸更改时自动运行 Pywal 并重新加载 Hyprland。
+
+创建壁纸设置脚本：例如 ~/.config/hypr/scripts/set_wallpaper.sh：
+
+#!/bin/bash
+
+WALLPAPER_PATH="$1"
+
+if [ -z "$WALLPAPER_PATH" ]; then
+echo "Usage: $0 
+
+设置壁纸 (根据你使用的工具，如 swww 或 hyprpaper)
+swww img "$WALLPAPER_PATH" --transition-type any
+hyprpaper wallpaper "$WALLPAPER_PATH"
+
+运行 Pywal
+wal -i "$WALLPAPER_PATH"
+
+重新加载 Hyprland 配置以应用新颜色
+hyprctl reload
+
+根据需要，向 Waybar 发送信号以重新加载（如果你的 Waybar 配置也使用了 Pywal 颜色）
+killall -SIGUSR2 waybar
+给脚本执行权限：chmod +x ~/.config/hypr/scripts/set_wallpaper.sh
+
+在 Hyprland 中绑定快捷键或集成到启动流程：
+你可以在 hyprland.conf 中绑定一个快捷键来运行这个脚本，或者在 Hyprland 启动时运行一个随机壁纸脚本。
+
+例如，绑定快捷键：
+
+绑定 Super + W 来运行壁纸设置脚本，可以添加一个随机壁纸的选择
+bind = $mainMod, W, exec, ~/.config/hypr/scripts/set_wallpaper.sh $(find /path/to/your/wallpapers -type f | shuf -n 1)
+
+其他应用程序的 Pywal 集成
+
+除了 Hyprland 本身，你可能还希望其他应用程序（如终端模拟器、Waybar、Rofi 等）也能使用 Pywal 生成的颜色。
+
+终端模拟器 (如 Alacritty, Kitty)：
+这些终端模拟器通常有各自的配置文件。Pywal 运行时会自动更新它们（如果支持）。例如，对于 Alacritty，Pywal 会生成 ~/.cache/wal/colors-alacritty.yml，你需要在你的主 Alacritty 配置中 source 或 import 这个文件。
+
+Waybar：
+Waybar 通常使用 CSS 进行样式设置。你可以在 Waybar 的 CSS 文件中引用 Pywal 生成的颜色变量。Pywal 默认会生成 ~/.cache/wal/colors-waybar.css。在你的 ~/.config/waybar/style.css 中添加：
+
+@import "/home/yourusername/.cache/wal/colors-waybar.css"; /* 使用绝对路径 */
+
+{
+
+使用 Pywal 颜色变量
+background-color: @background;
+color: @foreground;
+}
+
+#window {
+background-color: @color0;
+}
+
+记得在壁纸更改后发送 killall -SIGUSR2 waybar 信号给 Waybar，让它重新加载配置。
+
+Rofi：
+Rofi 支持导入颜色方案。你可以在 ~/.config/rofi/config.rasi 中导入 Pywal 生成的 Rofi 颜色文件：
+
+@import "~/.cache/wal/colors-rofi-dark.rasi"
+
+或者 @import "~/.cache/wal/colors-rofi-light.rasi" 取决于你的偏好
+常见问题和提示
+
+Pywal 颜色变量：Pywal 生成的颜色通常是 $color0 到 $color15，分别代表 16 种终端颜色。$background 和 $foreground 是背景色和前景色。
+
+调试：如果颜色没有按预期更改，检查 ~/.cache/wal/ 目录下的文件是否已正确生成。同时，检查你的配置文件中是否正确引用了这些文件或变量。
+
+透明度：Pywal 默认生成的是 RGB 颜色。如果你的 Hyprland 或其他应用程序支持 RGBA（带透明度），你可能需要在颜色值后面手动添加透明度，或者修改 Pywal 模板以包含透明度信息（如果 Pywal 版本支持）。
+
+重启或重载：更改颜色后，请确保 Hyprland 和相关应用程序（如 Waybar、终端）已重启或重新加载其配置，以便应用新的颜色。
+
+通过以上步骤，你就可以实现 Pywal 与 Hyprland 的颜色集成，让你的桌面环境根据壁纸展现出独特的动态色彩。
+
+
+来源
+
+
+
+
+
+
+

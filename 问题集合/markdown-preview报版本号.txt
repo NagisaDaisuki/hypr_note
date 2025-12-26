@@ -1,0 +1,2 @@
+cd ~/.local/share/nvim/lazy/markdown-preview.nvim
+npm install // 要有前面的npm代理配置

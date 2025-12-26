@@ -1,0 +1,9 @@
+安装(Archlinux)
+
+sudo pacman -S pipewire wireplumber pipewire-pulse pipewire-alsa
+sudo pacman -Rns pulseaudio # 如果存在 PulseAudio
+systemctl --user enable pipewire pipewire-pulse wireplumber
+systemctl --user start pipewire pipewire-pulse wireplumber
+
+之后重启系统
+

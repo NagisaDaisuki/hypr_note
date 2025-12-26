@@ -1,0 +1,69 @@
+使用brightnessctl命令设置键盘灯亮度
+
+`brightnessctl` 是一个非常方便的命令行工具，用于控制 Linux 系统上的屏幕和键盘背光亮度。
+
+### 使用 `brightnessctl` 设置键盘灯亮度
+
+1.  **安装 `brightnessctl`**
+
+    如果你还没有安装 `brightnessctl`，可以使用你的发行版包管理器进行安装。
+    * Debian/Ubuntu:
+        sudo apt install brightnessctl
+    * Arch Linux:
+        sudo pacman -S brightnessctl
+    * Fedora/CentOS/RHEL:
+        sudo dnf install brightnessctl
+
+2.  **查找键盘背光设备**
+
+    首先，你需要找出系统识别的键盘背光设备名称。通常，键盘背光设备的名称会包含 `kbd_backlight`。
+    brightnessctl --list
+    这个命令会列出所有 `brightnessctl` 可以控制的设备。在输出中，寻找类似于 `vendor::kbd_backlight` (例如 `asus::kbd_backlight`, `framework_laptop::kbd_backlight`, `tpacpi::kbd_backlight` 等) 的设备。
+
+    例如，你可能会看到这样的输出：
+    Device 'intel_backlight' of class 'backlight':
+      Current brightness: 79497 (45%)
+      Max brightness: 178604
+
+    Device 'asus::kbd_backlight' of class 'leds':
+      Current brightness: 1 (33%)
+      Max brightness: 3
+    在这个例子中，键盘背光设备是 `asus::kbd_backlight`。
+
+3.  **查看键盘灯信息**
+
+    一旦你确定了设备名称 (例如 `asus::kbd_backlight`)，你可以查看它的当前状态和最大亮度值：
+    brightnessctl --device='asus::kbd_backlight' info
+    这会显示当前亮度、最大亮度等信息。
+
+4.  **设置键盘灯亮度**
+
+    你可以使用 `set` 命令来设置键盘灯亮度。亮度值可以是绝对值，也可以是百分比，还可以是相对值。
+
+    * 设置绝对值:
+        假设你的键盘背光最大亮度是 3（这是常见的值，0 通常是关闭），你可以这样设置：
+        sudo brightnessctl --device='asus::kbd_backlight' set 2
+        请将 `asus::kbd_backlight` 替换为你的实际设备名称，将 `2` 替换为你想要设置的亮度值（通常在 0 到 `max_brightness` 之间）。
+
+    * 设置百分比:
+        sudo brightnessctl --device='asus::kbd_backlight' set 50%
+        这会将亮度设置为最大亮度的一半。
+
+    * 增加/减少亮度:
+        sudo brightnessctl --device='asus::kbd_backlight' set +1
+        sudo brightnessctl --device='asus::kbd_backlight' set -1
+        或者使用百分比：
+        sudo brightnessctl --device='asus::kbd_backlight' set +10%
+        sudo brightnessctl --device='asus::kbd_backlight' set 10%-
+
+    * 关闭键盘灯:
+        sudo brightnessctl --device='asus::kbd_backlight' set 0
+
+### 注意事项：
+
+* **`sudo` 权限**: 修改亮度通常需要 `root` 权限，所以你可能需要在命令前加上 `sudo`。
+* **设备名称**: `vendor::kbd_backlight` 中的 `vendor` 部分会因制造商而异。确保你使用 `brightnessctl --list` 找到的正确设备名称。
+* **最大亮度值**: 不同的键盘型号，其最大亮度值（`max_brightness`）可能不同。使用 `brightnessctl --device='your_device_name' info` 来确认。
+* **快捷键绑定**: 为了方便使用，你可以将这些命令绑定到键盘快捷键上。具体的绑定方法取决于你使用的桌面环境（如 GNOME, KDE, XFCE 等）或窗口管理器（如 i3, bspwm 等）。
+
+如果你在使用过程中遇到任何问题，可以提供你的 Linux 发行版和笔记本型号，这样我可以提供更具体的帮助。

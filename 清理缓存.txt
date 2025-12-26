@@ -1,0 +1,10 @@
+# 使用resolvectl(systemd)
+
+sudo systemctl enable systemd-resolved
+sudo systemctl start systemd-resolved
+sudo systemctl status systemd-resolved # Verify it's now active (running)
+sudo resolvectl flush-caches
+
+这个命令通常不会有任何输出，但它会清除 systemd-resolved 的 DNS 缓存。
+
+
